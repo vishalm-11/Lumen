@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from google import genai
 import json
 import traceback
@@ -10,32 +11,34 @@ def _get_gemini_client():
         raise ValueError("GEMINI_API_KEY not set in environment variables")
     return genai.Client(api_key=api_key, http_options={"api_version": "v1"})
 
+_causes_path = Path(__file__).parent.parent / "causes.json"
+try:
+    with open(_causes_path) as _f:
+        _CAUSES = {entry["country"]: entry for entry in json.load(_f)["countries"]}
+except Exception:
+    _CAUSES = {}
+
 def summarize_news(country: str, headlines: list, economics: dict = None) -> str:
-    # Handle both old format (list of strings) and new format (list of dicts)
     if headlines and isinstance(headlines[0], dict):
         headline_titles = [h.get("title", "") for h in headlines if h.get("title")]
     else:
         headline_titles = [h for h in headlines if isinstance(h, str)]
-    
+
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY not set in environment variables")
-    
-    headlines_text = "\n".join(f"- {h}" for h in headline_titles)
-    
-    # Build economics context text if available
-    economics_text = ""
-    if economics:
-        if economics.get("currency") and economics["currency"].get("formatted"):
-            economics_text += f"\nCurrency: {economics['currency']['formatted']}"
-        if economics.get("stock") and economics["stock"].get("formatted"):
-            economics_text += f"\nMarkets: {economics['stock']['formatted']}"
-    
-    prompt = f"""You are a financial news anchor on a live markets broadcast. In 3-4 sentences, explain what is happening in {country} and how it is affecting or likely to affect their financial markets and key stocks. Reference the index performance if available. Be specific, analytical, and speak as if live on air. No bullet points, no markdown, plain spoken text only.
 
-Headlines:
-{headlines_text}
-{f"Economic Context: {economics_text}" if economics_text else ""}"""
+    headlines_text = "\n".join(f"- {h}" for h in headline_titles)
+
+    cause = _CAUSES.get(country)
+    cause_context = ""
+    if cause:
+        cause_context = f" Note that {cause['organization']} is one of the organizations actively working to help — mention them by name."
+
+    prompt = f"""You are a compassionate humanitarian narrator. In 3-4 sentences, identify the most pressing ongoing humanitarian or environmental crisis affecting people in {country} right now. Explain why it matters and what real people are living through. Speak with warmth and genuine concern — not as a news anchor, but as someone who deeply cares.{cause_context} No bullet points, no markdown, plain spoken text only.
+
+Recent news context:
+{headlines_text}"""
 
     # Try different API versions and model names
     models_to_try = [

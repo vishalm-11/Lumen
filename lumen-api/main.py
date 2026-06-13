@@ -6,7 +6,7 @@ import os
 
 load_dotenv()
 
-app = FastAPI(title="Kairos API")
+app = FastAPI(title="Lumen API")
 
 app.add_middleware(
     CORSMiddleware,

@@ -2,7 +2,7 @@ import os
 import base64
 import requests
 
-VOICE_ID = "onwK4e9ZLuTAKqWW03F9"
+VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Sarah — warm, empathetic narrator
 
 def speak(text: str) -> str:
     api_key = os.getenv("ELEVENLABS_API_KEY")
@@ -26,8 +26,10 @@ def speak(text: str) -> str:
                 "text": text,
                 "model_id": "eleven_turbo_v2_5",
                 "voice_settings": {
-                    "stability": 0.5,
-                    "similarity_boost": 0.75
+                    "stability": 0.65,
+                    "similarity_boost": 0.8,
+                    "style": 0.35,
+                    "use_speaker_boost": True
                 }
             },
             timeout=30

@@ -1,6 +1,6 @@
-# Kairos — Global News Intelligence
+# Lumen — Global News Intelligence
 
-A real-time global news intelligence platform for stock market analysis. World events move markets, and Kairos makes that connection visible. Explore an interactive 3D globe with a live markets dashboard, AI-powered news analysis, and real-time financial data.
+A real-time global news intelligence platform for stock market analysis. World events move markets, and Lumen makes that connection visible. Explore an interactive 3D globe with a live markets dashboard, AI-powered news analysis, and real-time financial data.
 
 ## Setup
 
@@ -14,13 +14,13 @@ A real-time global news intelligence platform for stock market analysis. World e
 ### 2. Backend Setup
 
 ```bash
-cd kairos-api
+cd lumen-api
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create `kairos-api/.env` file with your API keys:
+Create `lumen-api/.env` file with your API keys:
 
 ```
 GEMINI_API_KEY=your_gemini_api_key_here
@@ -37,11 +37,11 @@ uvicorn main:app --reload --port 8000
 ### 3. Frontend Setup
 
 ```bash
-cd kairos-web
+cd lumen-web
 npm install
 ```
 
-Create `kairos-web/.env` file with your Cesium token:
+Create `lumen-web/.env` file with your Cesium token:
 
 ```
 VITE_CESIUM_TOKEN=your_cesium_ion_token_here
@@ -62,12 +62,12 @@ Click any country on the globe to see real-time news summaries and hear them rea
 ## Project Structure
 
 ```
-Kairos/
-├── kairos-api/          # FastAPI backend
+Lumen/
+├── lumen-api/          # FastAPI backend
 │   ├── main.py         # FastAPI app entry point
 │   ├── routers/        # API route handlers
 │   └── services/       # News, Gemini, ElevenLabs, Economics services
-└── kairos-web/          # React + Vite frontend
+└── lumen-web/          # React + Vite frontend
     ├── src/
     │   ├── components/ # React components (Globe, CountryPanel, MarketsSidebar, etc.)
     │   └── lib/        # API client

@@ -48,7 +48,7 @@ export default function LandingPage({ onEnter }) {
           textShadow: '0 0 30px rgba(255,255,255,0.3)',
           lineHeight: 1,
         }}>
-          KAIROS
+          LUMEN
         </div>
         
         {/* Subtitle */}
@@ -74,7 +74,7 @@ export default function LandingPage({ onEnter }) {
         }}>
           <p style={{ marginBottom: '20px' }}>
             Real-time global news intelligence for stock market analysis. 
-            World events move markets, and Kairos makes that connection visible. 
+            World events move markets, and Lumen makes that connection visible. 
             Click any country to see how news is driving financial markets with 
             AI-powered analysis and live market data.
           </p>

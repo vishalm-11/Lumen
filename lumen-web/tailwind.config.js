@@ -8,7 +8,7 @@ export default {
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       colors: {
-        kairos: {
+        lumen: {
           bg: '#030712',
           panel: '#0a0f1a',
           accent: '#F59E0B',

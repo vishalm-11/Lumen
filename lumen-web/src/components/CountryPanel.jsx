@@ -142,37 +142,6 @@ const ArticlePreview = ({ headline, index }) => {
   )
 }
 
-// Sparkline component
-const Sparkline = ({ data, color = '#10B981', width = 120, height = 30 }) => {
-  if (!data || data.length < 2) return null
-  
-  const padding = 2
-  const chartWidth = width - padding * 2
-  const chartHeight = height - padding * 2
-  
-  const min = Math.min(...data)
-  const max = Math.max(...data)
-  const range = max - min || 1
-  
-  const points = data.map((value, index) => {
-    const x = padding + (index / (data.length - 1)) * chartWidth
-    const y = padding + chartHeight - ((value - min) / range) * chartHeight
-    return `${x},${y}`
-  }).join(' ')
-  
-  return (
-    <svg width={width} height={height} style={{ display: 'block' }}>
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
 
 export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
   const audioRef = useRef(null)
@@ -263,7 +232,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
               letterSpacing: '0.2em',
               marginBottom: '6px',
             }}>
-              LIVE BRIEFING
+              HUMANITARIAN BRIEFING
             </div>
             <div style={{
               fontFamily: 'Bebas Neue',
@@ -376,131 +345,6 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
           display: 'flex',
           flexDirection: 'column',
         }}>
-          {/* MARKET BRIEF Section */}
-          {data.economics && data.economics.stock && (
-            <div style={{
-              margin: '0 28px 20px',
-              padding: '18px 20px',
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '10px',
-            }}>
-              <div style={{
-                fontFamily: 'JetBrains Mono',
-                fontSize: '0.6rem',
-                color: '#6B7280',
-                letterSpacing: '0.2em',
-                marginBottom: '14px',
-              }}>
-                MARKET BRIEF
-              </div>
-              
-              {/* Stock Index with Sparkline */}
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <div>
-                    <div style={{
-                      fontFamily: 'DM Sans',
-                      fontSize: '0.75rem',
-                      color: '#6B7280',
-                      marginBottom: '4px',
-                    }}>
-                      {data.economics.stock.index_name}
-                    </div>
-                    <div style={{
-                      fontFamily: 'JetBrains Mono',
-                      fontSize: '1rem',
-                      color: '#F9FAFB',
-                      fontWeight: '500',
-                    }}>
-                      {data.economics.stock.value}
-                    </div>
-                  </div>
-                  <div style={{
-                    fontFamily: 'JetBrains Mono',
-                    fontSize: '0.85rem',
-                    color: data.economics.stock.direction === 'up' ? '#10B981' : '#EF4444',
-                    fontWeight: '500',
-                  }}>
-                    {data.economics.stock.direction === 'up' ? '↑' : '↓'} {Math.abs(data.economics.stock.change_pct || 0).toFixed(2)}%
-                  </div>
-                </div>
-                {data.economics.stock.sparkline && (
-                  <div style={{ marginTop: '8px' }}>
-                    <Sparkline 
-                      data={data.economics.stock.sparkline} 
-                      color={data.economics.stock.direction === 'up' ? '#10B981' : '#EF4444'}
-                      width={200}
-                      height={30}
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Top Stocks */}
-              {data.top_stocks && data.top_stocks.length > 0 && (
-                <div>
-                  <div style={{
-                    fontFamily: 'JetBrains Mono',
-                    fontSize: '0.55rem',
-                    color: '#6B7280',
-                    letterSpacing: '0.15em',
-                    marginBottom: '10px',
-                  }}>
-                    TOP STOCKS AFFECTED
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {data.top_stocks.map((stock, i) => (
-                      <div key={i} style={{
-                        padding: '10px 12px',
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid rgba(255,255,255,0.05)',
-                        borderRadius: '6px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}>
-                        <div>
-                          <div style={{
-                            fontFamily: 'DM Sans',
-                            fontSize: '0.75rem',
-                            color: '#F9FAFB',
-                            fontWeight: '500',
-                          }}>
-                            {stock.company_name}
-                          </div>
-                          <div style={{
-                            fontFamily: 'JetBrains Mono',
-                            fontSize: '0.65rem',
-                            color: '#6B7280',
-                          }}>
-                            {stock.ticker}
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{
-                            fontFamily: 'JetBrains Mono',
-                            fontSize: '0.75rem',
-                            color: '#F9FAFB',
-                          }}>
-                            ${stock.price.toFixed(2)}
-                          </div>
-                          <div style={{
-                            fontFamily: 'JetBrains Mono',
-                            fontSize: '0.65rem',
-                            color: stock.direction === 'up' ? '#10B981' : '#EF4444',
-                          }}>
-                            {stock.direction === 'up' ? '↑' : '↓'} {Math.abs(stock.change_pct).toFixed(2)}%
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Summary */}
           <div style={{ padding: '0 28px 20px' }}>
             <div style={{
@@ -514,6 +358,43 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
             </div>
           </div>
 
+          {/* Donate Button */}
+          {data.cause && (
+            <div style={{ padding: '0 28px 24px' }}>
+              <a
+                href={data.cause.donationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 20px',
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
+                  color: '#F9FAFB',
+                  fontFamily: 'DM Sans',
+                  fontSize: '0.88rem',
+                  fontWeight: '500',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
+                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+                }}
+              >
+                Donate to {data.cause.organization} →
+              </a>
+            </div>
+          )}
+
           {/* Headlines */}
           <div style={{
             padding: '0 28px 28px',
@@ -526,7 +407,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
               marginBottom: '16px',
               fontWeight: '500',
             }}>
-              NEWS DRIVING MARKETS
+              RELATED COVERAGE
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {data.headlines && data.headlines.length > 0 ? (

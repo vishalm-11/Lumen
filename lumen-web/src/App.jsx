@@ -3,7 +3,6 @@ import Globe from './components/Globe'
 import CountryPanel from './components/CountryPanel'
 import LoadingOverlay from './components/LoadingOverlay'
 import LandingPage from './components/LandingPage'
-import MarketsSidebar from './components/MarketsSidebar'
 import { getCountryData } from './lib/api'
 
 export default function App() {
@@ -11,7 +10,6 @@ export default function App() {
   const [selectedCountry, setSelectedCountry] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Keep Railway backend alive
   useEffect(() => {
@@ -50,11 +48,11 @@ export default function App() {
     return <LandingPage onEnter={() => setShowGlobe(true)} />
   }
 
-  const globeWidth = sidebarOpen ? '75%' : '100%'
+  const globeWidth = '100%'
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#030712', display: 'flex' }}>
-      {/* Top bar - spans globe area only */}
+      {/* Top bar */}
       <div style={{
         position: 'absolute', top: 0, left: 0, width: globeWidth, zIndex: 10,
         padding: '20px 28px',
@@ -65,7 +63,7 @@ export default function App() {
       }}>
         <div>
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '2rem', letterSpacing: '0.1em', color: '#FFFFFF' }}>
-            KAIROS
+            LUMEN
           </div>
           <div style={{ fontFamily: 'JetBrains Mono', fontSize: '0.65rem', color: '#6B7280', letterSpacing: '0.2em', marginTop: '-4px' }}>
             GLOBAL NEWS INTELLIGENCE
@@ -86,13 +84,6 @@ export default function App() {
         <Globe onCountryClick={handleCountryClick} />
         {loading && <LoadingOverlay />}
       </div>
-
-      {/* Markets Sidebar - togglable */}
-      <MarketsSidebar
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen(o => !o)}
-        onCountryClick={handleCountryClick}
-      />
 
       {/* Error */}
       {error && (
