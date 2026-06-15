@@ -1,22 +1,15 @@
 import os
-from pathlib import Path
 from google import genai
 import json
 import traceback
 import re
+from services.causes_service import lookup_cause
 
 def _get_gemini_client():
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY not set in environment variables")
     return genai.Client(api_key=api_key, http_options={"api_version": "v1"})
-
-_causes_path = Path(__file__).parent.parent / "causes.json"
-try:
-    with open(_causes_path) as _f:
-        _CAUSES = {entry["country"]: entry for entry in json.load(_f)["countries"]}
-except Exception:
-    _CAUSES = {}
 
 def _parse_briefing_response(raw_text: str, country: str) -> dict:
     text = raw_text.strip().replace("```json", "").replace("```", "").strip()
@@ -59,16 +52,21 @@ def summarize_news(country: str, headlines: list = None, economics: dict = None)
     if not api_key:
         raise ValueError("GEMINI_API_KEY not set in environment variables")
 
-    cause = _CAUSES.get(country)
+    cause = lookup_cause(country)
     if cause:
-        topic_context = f"""The topic for this briefing is already defined — use it as your starting point and focus entirely on it:
-- Country: {country}
-- Issue: {cause['issue']}
-- Supporting organization: {cause['organization']}
+        issue = cause["issue"]
+        organization = cause["organization"]
+        topic_context = f"""MANDATORY TOPIC — you must write ONLY about this exact issue. Do not discuss any other crisis, conflict, or historical event.
 
-Write the briefing and statistics specifically about "{cause['issue']}" in {country}. In the final sentence, naturally mention that {cause['organization']} is working to address this issue."""
+Country: {country.strip()}
+Issue (required topic): "{issue}"
+Supporting organization: {organization}
+
+Every sentence in the summary and every statistic must relate directly to "{issue}" in {country}.
+Do NOT write about unrelated topics (for example, do not write about past wars or conflicts if the issue is economic or environmental).
+In the final sentence, naturally mention that {organization} is working to address "{issue}"."""
     else:
-        topic_context = f"""{country} is not in our causes database. Using your general knowledge only, identify the single most well-known ongoing humanitarian or environmental crisis affecting {country} (not a fleeting news story). Write the briefing and statistics entirely about that issue."""
+        topic_context = f"""{country.strip()} is not in our causes database. Using your general knowledge only, identify the single most well-known ongoing humanitarian or environmental crisis affecting {country} (not a fleeting news story). Write the briefing and statistics entirely about that issue."""
 
     prompt = f"""You are writing a factual humanitarian briefing about {country}.
 

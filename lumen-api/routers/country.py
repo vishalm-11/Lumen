@@ -1,24 +1,17 @@
 from fastapi import APIRouter, HTTPException
 from services.gemini_service import summarize_news
-from services.elevenlabs_service import speak
+from services.elevenlabs_service import speak, AUDIO_ENABLED
+from services.causes_service import lookup_cause
 import asyncio
-import json
-from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
 router = APIRouter()
 executor = ThreadPoolExecutor(max_workers=3)
 
-_causes_path = Path(__file__).parent.parent / "causes.json"
-try:
-    with open(_causes_path) as _f:
-        _CAUSES = {entry["country"]: entry for entry in json.load(_f)["countries"]}
-except Exception:
-    _CAUSES = {}
-
 @router.get("/country/{country_name}")
 async def get_country_data(country_name: str):
     try:
+        country_name = country_name.strip()
         print(f"Fetching data for country: {country_name}")
 
         loop = asyncio.get_event_loop()
@@ -29,10 +22,14 @@ async def get_country_data(country_name: str):
         key_stats = briefing.get("key_stats", [])
         print(f"Summary generated: {len(summary)} characters, {len(key_stats)} stats")
 
-        audio_base64 = await loop.run_in_executor(executor, speak, summary)
-        print(f"Audio generated: {len(audio_base64)} characters")
+        if AUDIO_ENABLED:
+            audio_base64 = await loop.run_in_executor(executor, speak, summary)
+            print(f"Audio generated: {len(audio_base64)} characters")
+        else:
+            audio_base64 = None
+            print("Audio generation skipped (AUDIO_ENABLED=False)")
 
-        cause_entry = _CAUSES.get(country_name)
+        cause_entry = lookup_cause(country_name)
         cause = {
             "organization": cause_entry["organization"],
             "donationUrl": cause_entry["donationUrl"],

@@ -1,22 +1,16 @@
 from fastapi import APIRouter, HTTPException, Query
-from pathlib import Path
-import json
 from services.youtube_service import search_video
+from services.causes_service import lookup_cause
 
 router = APIRouter()
-
-_causes_path = Path(__file__).parent.parent / "causes.json"
-try:
-    with open(_causes_path) as _f:
-        _CAUSES = {entry["country"]: entry for entry in json.load(_f)["countries"]}
-except Exception:
-    _CAUSES = {}
 
 
 @router.get("/youtube/{country_name}")
 def get_youtube_video(country_name: str, issue: str | None = Query(None)):
     try:
-        resolved_issue = issue or (_CAUSES.get(country_name) or {}).get("issue")
+        country_name = country_name.strip()
+        cause = lookup_cause(country_name)
+        resolved_issue = (issue or (cause or {}).get("issue") or "").strip() or None
         video_id = search_video(country_name, resolved_issue)
 
         if not video_id:

@@ -2,9 +2,14 @@ import os
 import base64
 import requests
 
+AUDIO_ENABLED = True
+
 VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Sarah — warm, empathetic narrator
 
 def speak(text: str) -> str:
+    if not AUDIO_ENABLED:
+        return ""
+
     api_key = os.getenv("ELEVENLABS_API_KEY")
     if not api_key:
         raise ValueError("ELEVENLABS_API_KEY not set in environment variables")

@@ -1,3 +1,5 @@
+import { AUDIO_ENABLED } from '../config'
+
 export default function LoadingOverlay() {
   return (
     <div style={{
@@ -48,7 +50,7 @@ export default function LoadingOverlay() {
           textAlign: 'center',
           marginTop: '-4px',
         }}>
-          Generating briefing • Creating audio
+          {AUDIO_ENABLED ? 'Generating briefing • Creating audio' : 'Generating briefing'}
         </div>
       </div>
     </div>

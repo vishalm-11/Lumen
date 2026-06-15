@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { getYoutubeVideo } from '../lib/api'
 import HolographicProjection from './HolographicProjection'
+import { AUDIO_ENABLED } from '../config'
 
 export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
   const audioRef = useRef(null)
@@ -44,6 +45,8 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
   }
 
   useEffect(() => {
+    if (!AUDIO_ENABLED) return
+
     stopAudio()
 
     if (!data?.audio_base64) {
@@ -219,6 +222,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
         </div>
 
         {/* Audio Player */}
+        {AUDIO_ENABLED && (
         <div style={{
           margin: '16px 28px',
           padding: '14px 18px',
@@ -283,6 +287,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
             {isPlaying ? '⏸' : '▶'}
           </span>
         </div>
+        )}
 
         {/* Scrollable Content Container */}
         <div style={{
