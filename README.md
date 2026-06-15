@@ -14,7 +14,7 @@ A real-time global news intelligence platform for stock market analysis. World e
 ### 2. Backend Setup
 
 ```bash
-cd lumen-api
+cd Lumen/lumen-api
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -37,7 +37,7 @@ uvicorn main:app --reload --port 8000
 ### 3. Frontend Setup
 
 ```bash
-cd lumen-web
+cd Lumen/lumen-web
 npm install
 ```
 

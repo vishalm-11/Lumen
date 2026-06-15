@@ -242,56 +242,20 @@ export default function Globe({ onCountryClick }) {
       const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)
       
       handler.setInputAction((click) => {
-        // First check if clicking directly on an entity
         const pickedObject = viewer.scene.pick(click.position)
-        if (pickedObject && pickedObject.id && pickedObject.id.name) {
-          const countryName = pickedObject.id.name
-          const [lat, lng] = COUNTRY_CENTROIDS[countryName]
-          viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(lng, lat, 4000000),
-            duration: 1.5,
-          })
-          console.log('Country clicked:', countryName)
-          if (onCountryClick) {
-            onCountryClick(countryName)
-          }
+        if (!pickedObject?.id?.name || !COUNTRY_CENTROIDS[pickedObject.id.name]) {
           return
         }
 
-        // Fallback to distance-based selection
-        const cartesian = viewer.camera.pickEllipsoid(
-          click.position,
-          viewer.scene.globe.ellipsoid
-        )
-        if (!cartesian) return
-
-        const cartographic = Cesium.Cartographic.fromCartesian(cartesian)
-        const clickLat = Cesium.Math.toDegrees(cartographic.latitude)
-        const clickLng = Cesium.Math.toDegrees(cartographic.longitude)
-
-        let nearest = null
-        let minDist = Infinity
-        Object.entries(COUNTRY_CENTROIDS).forEach(([name, [lat, lng]]) => {
-          const dist = Math.sqrt(
-            Math.pow(clickLat - lat, 2) + Math.pow(clickLng - lng, 2)
-          )
-          if (dist < minDist) {
-            minDist = dist
-            nearest = name
-          }
+        const countryName = pickedObject.id.name
+        const [lat, lng] = COUNTRY_CENTROIDS[countryName]
+        viewer.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(lng, lat, 4000000),
+          duration: 1.5,
         })
-
-        // Increased click radius for easier clicking
-        if (nearest && minDist < 30) {
-          const [lat, lng] = COUNTRY_CENTROIDS[nearest]
-          viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(lng, lat, 4000000),
-            duration: 1.5,
-          })
-          console.log('Country clicked:', nearest)
-          if (onCountryClick) {
-            onCountryClick(nearest)
-          }
+        console.log('Country clicked:', countryName)
+        if (onCountryClick) {
+          onCountryClick(countryName)
         }
       }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 

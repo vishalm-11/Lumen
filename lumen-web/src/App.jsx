@@ -4,6 +4,7 @@ import CountryPanel from './components/CountryPanel'
 import LoadingOverlay from './components/LoadingOverlay'
 import LandingPage from './components/LandingPage'
 import { getCountryData } from './lib/api'
+import { API_URL } from './config'
 
 export default function App() {
   const [showGlobe, setShowGlobe] = useState(false)
@@ -14,7 +15,7 @@ export default function App() {
   // Keep Railway backend alive
   useEffect(() => {
     const keepAlive = () => {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/health`)
+      fetch(`${API_URL}/health`)
         .catch(() => {}) // silently fail
     }
     keepAlive() // ping immediately on load
