@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from routers import country
+from routers import country, youtube
 import os
 
 load_dotenv()
@@ -17,6 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(country.router)
+app.include_router(youtube.router, prefix="/api")
 
 @app.get("/health")
 def health():
@@ -29,4 +30,5 @@ def check_keys():
         "GEMINI_API_KEY": "set" if os.getenv("GEMINI_API_KEY") else "missing",
         "ELEVENLABS_API_KEY": "set" if os.getenv("ELEVENLABS_API_KEY") else "missing",
         "NEWS_API_KEY": "set" if os.getenv("NEWS_API_KEY") else "missing",
+        "YOUTUBE_API_KEY": "set" if os.getenv("YOUTUBE_API_KEY") else "missing",
     }

@@ -1,9 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { getYoutubeVideo } from '../lib/api'
+import HolographicProjection from './HolographicProjection'
 
 export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
   const audioRef = useRef(null)
   const playTimeoutRef = useRef(null)
+  const layoutRef = useRef(null)
+  const panelRef = useRef(null)
+  const videoRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [videoId, setVideoId] = useState(null)
+  const [videoVisible, setVideoVisible] = useState(false)
+
+  const handleLinesComplete = useCallback(() => {
+    setVideoVisible(true)
+  }, [])
 
   const stopAudio = () => {
     if (playTimeoutRef.current) {
@@ -78,6 +89,30 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
     }
   }, [data?.country, data?.audio_base64])
 
+  useEffect(() => {
+    let cancelled = false
+    setVideoId(null)
+    setVideoVisible(false)
+
+    getYoutubeVideo(data.country, data.cause?.issue)
+      .then((res) => {
+        if (!cancelled) setVideoId(res.video_id)
+      })
+      .catch(() => {
+        if (!cancelled) setVideoId(null)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [data.country, data.cause?.issue])
+
+  useEffect(() => {
+    if (!videoId) return
+    const mq = window.matchMedia('(max-width: 900px)')
+    if (mq.matches) setVideoVisible(true)
+  }, [videoId])
+
   const toggleAudio = () => {
     const audio = audioRef.current
     if (!audio) return
@@ -111,26 +146,18 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
         }}
       />
       
-      {/* Panel positioned over globe only */}
-      <div className="fade-in" style={{
-        position: 'fixed',
-        top: '50%',
-        left: `calc(${globeWidth} / 2)`,
-        transform: 'translate(-50%, -50%)',
-        width: '600px',
-        maxWidth: '60vw',
-        maxHeight: '85vh',
-        background: 'rgba(20, 10, 5, 0.85)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '16px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
-        zIndex: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        pointerEvents: 'auto',
-      }}>
+      {/* Briefing layout — centered, holographic video projection */}
+      <div className="briefing-layout" ref={layoutRef}>
+        {videoId && (
+          <HolographicProjection
+            layoutRef={layoutRef}
+            panelRef={panelRef}
+            videoRef={videoRef}
+            active={!!videoId}
+            onLinesComplete={handleLinesComplete}
+          />
+        )}
+        <div className="briefing-panel" ref={panelRef}>
         {/* Header */}
         <div style={{
           padding: '28px 28px 20px',
@@ -333,7 +360,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
 
           {/* Donate Button */}
           {data.cause && (
-            <div style={{ padding: '0 28px 24px' }}>
+            <div style={{ padding: '0 28px 28px' }}>
               <a
                 href={data.cause.donationUrl}
                 target="_blank"
@@ -371,6 +398,26 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
           )}
 
         </div>
+        </div>
+
+        {videoId && (
+          <div className="briefing-video-wrapper">
+            <div
+              ref={videoRef}
+              className={`briefing-video${videoVisible ? ' briefing-video-visible' : ''}`}
+            >
+              <div className="briefing-video-glow" />
+              <div className="briefing-video-inner">
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&rel=0`}
+                  title={`${data.country} briefing video`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   )
