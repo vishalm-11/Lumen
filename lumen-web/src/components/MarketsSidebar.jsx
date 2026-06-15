@@ -62,7 +62,7 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
           zIndex: 100,
           width: '32px',
           height: '80px',
-          background: 'rgba(0,0,0,0.85)',
+          background: 'rgba(20, 10, 5, 0.85)',
           border: '1px solid rgba(16,185,129,0.9)',
           borderRight: 'none',
           borderRadius: '8px 0 0 8px',
@@ -70,9 +70,10 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontFamily: 'JetBrains Mono',
+          fontFamily: 'DM Sans',
+          fontWeight: 500,
           fontSize: '0.6rem',
-          color: '#10B981',
+          color: '#F59E0B',
           letterSpacing: '0.15em',
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
@@ -82,7 +83,7 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
           e.currentTarget.style.background = 'rgba(16,185,129,0.15)'
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'rgba(0,0,0,0.85)'
+          e.currentTarget.style.background = 'rgba(20, 10, 5, 0.85)'
         }}
       >
         MARKETS
@@ -103,7 +104,7 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
           width: '100%',
           minWidth: 0,
           height: '100%',
-          background: 'rgba(0,0,0,0.92)',
+          background: 'rgba(20, 10, 5, 0.92)',
           backdropFilter: 'blur(20px)',
           borderLeft: '2px solid rgba(156,163,175,0.35)',
           display: 'flex',
@@ -117,9 +118,10 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
             flexShrink: 0,
           }}>
             <div style={{
-              fontFamily: 'JetBrains Mono',
+              fontFamily: 'DM Sans',
+          fontWeight: 500,
               fontSize: '0.75rem',
-              color: '#10B981',
+              color: '#F59E0B',
               letterSpacing: '0.2em',
               marginBottom: '12px',
             }}>
@@ -162,7 +164,7 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
                       background: isAdded ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.04)',
                       border: `1px solid ${isAdded ? 'rgba(16,185,129,0.9)' : 'rgba(255,255,255,0.10)'}`,
                       borderRadius: '6px',
-                      color: isAdded ? '#10B981' : '#9CA3AF',
+                      color: isAdded ? '#F59E0B' : '#9CA3AF',
                       fontFamily: 'DM Sans',
                       fontSize: '0.7rem',
                       whiteSpace: 'nowrap',
@@ -197,7 +199,7 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
               sortedMarkets.map((market) => {
                 const hasData = market.index_name != null && market.value != null
                 const isPositive = (market.change_pct || 0) >= 0
-                const changeColor = isPositive ? '#10B981' : '#EF4444'
+                const changeColor = isPositive ? '#F59E0B' : '#EF4444'
 
                 return (
                   <div
@@ -262,7 +264,8 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
                             {market.country}
                           </div>
                           <div style={{
-                            fontFamily: 'JetBrains Mono',
+                            fontFamily: 'DM Sans',
+          fontWeight: 500,
                             fontSize: '0.6rem',
                             color: '#9CA3AF',
                             marginTop: '6px',
@@ -279,7 +282,8 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
                               display: 'flex',
                               alignItems: 'center',
                               gap: '4px',
-                              fontFamily: 'JetBrains Mono',
+                              fontFamily: 'DM Sans',
+          fontWeight: 500,
                               fontSize: '0.68rem',
                               color: changeColor,
                               fontWeight: '600',
@@ -289,7 +293,8 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
                             </div>
                           )}
                           <div style={{
-                            fontFamily: 'JetBrains Mono',
+                            fontFamily: 'DM Sans',
+          fontWeight: 500,
                             fontSize: '0.72rem',
                             color: '#E5E7EB',
                             textAlign: 'right',
@@ -299,7 +304,8 @@ export default function MarketsSidebar({ isOpen, onToggle, onCountryClick }) {
                         </div>
                       </div>
                       <div style={{
-                        fontFamily: 'JetBrains Mono',
+                        fontFamily: 'DM Sans',
+          fontWeight: 500,
                         fontSize: '0.62rem',
                         color: 'rgba(16,185,129,0.55)',
                         marginTop: '8px',

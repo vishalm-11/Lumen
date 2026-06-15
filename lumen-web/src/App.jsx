@@ -51,13 +51,13 @@ export default function App() {
   const globeWidth = '100%'
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#030712', display: 'flex' }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#0a0f1e', display: 'flex' }}>
       {/* Top bar */}
       <div style={{
         position: 'absolute', top: 0, left: 0, width: globeWidth, zIndex: 10,
         padding: '20px 28px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: 'linear-gradient(to bottom, rgba(3,7,18,0.9) 0%, transparent 100%)',
+        background: 'linear-gradient(to bottom, rgba(10,15,30,0.9) 0%, transparent 100%)',
         pointerEvents: 'none',
         transition: 'width 0.3s ease',
       }}>
@@ -65,11 +65,11 @@ export default function App() {
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '2rem', letterSpacing: '0.1em', color: '#FFFFFF' }}>
             LUMEN
           </div>
-          <div style={{ fontFamily: 'JetBrains Mono', fontSize: '0.65rem', color: '#6B7280', letterSpacing: '0.2em', marginTop: '-4px' }}>
-            GLOBAL NEWS INTELLIGENCE
+          <div style={{ fontFamily: 'DM Sans', fontSize: '0.65rem', fontWeight: 500, color: '#6B7280', letterSpacing: '0.2em', marginTop: '-4px' }}>
+            See It. Understand It. Act.
           </div>
         </div>
-        <div style={{ fontFamily: 'JetBrains Mono', fontSize: '0.65rem', color: '#6B7280', letterSpacing: '0.15em' }}>
+        <div style={{ fontFamily: 'DM Sans', fontSize: '0.65rem', fontWeight: 500, color: '#6B7280', letterSpacing: '0.15em' }}>
           CLICK ANY COUNTRY
         </div>
       </div>
@@ -91,7 +91,7 @@ export default function App() {
           position: 'absolute', bottom: 28, left: '50%', transform: 'translateX(-50%)',
           background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
           color: '#FCA5A5', padding: '10px 20px', borderRadius: '6px',
-          fontFamily: 'JetBrains Mono', fontSize: '0.75rem', zIndex: 20
+          fontFamily: 'DM Sans', fontSize: '0.75rem', fontWeight: 500, zIndex: 20
         }}>
           {error}
         </div>

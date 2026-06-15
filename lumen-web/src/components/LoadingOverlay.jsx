@@ -12,7 +12,7 @@ export default function LoadingOverlay() {
       gap: '14px',
     }}>
       <div style={{
-        background: 'rgba(0,0,0,0.95)',
+        background: 'rgba(20, 10, 5, 0.95)',
         backdropFilter: 'blur(20px)',
         border: '1px solid rgba(255,255,255,0.2)',
         borderRadius: '12px',
@@ -31,7 +31,8 @@ export default function LoadingOverlay() {
           borderRadius: '50%',
         }} />
         <div style={{
-          fontFamily: 'JetBrains Mono',
+          fontFamily: 'DM Sans',
+          fontWeight: 500,
           fontSize: '0.7rem',
           color: '#FFFFFF',
           letterSpacing: '0.2em',
@@ -47,7 +48,7 @@ export default function LoadingOverlay() {
           textAlign: 'center',
           marginTop: '-4px',
         }}>
-          Fetching news • Generating summary • Creating audio
+          Generating briefing • Creating audio
         </div>
       </div>
     </div>

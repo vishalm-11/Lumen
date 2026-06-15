@@ -29,7 +29,7 @@ export default function Globe({ onCountryClick }) {
       viewerRef.current = viewer
 
       viewer.scene.globe.enableLighting = false
-      viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#030712')
+      viewer.scene.backgroundColor = Cesium.Color.fromCssColorString('#0a0f1e')
 
       viewer.camera.setView({
         destination: Cesium.Cartesian3.fromDegrees(20, 20, 25000000),
@@ -216,7 +216,7 @@ export default function Globe({ onCountryClick }) {
           },
           label: {
             text: name,
-            font: '14px JetBrains Mono',
+            font: '14px DM Sans',
             fillColor: Cesium.Color.fromCssColorString('#FFFFFF').withAlpha(0.95),
             outlineColor: Cesium.Color.fromCssColorString('#000000').withAlpha(0.8),
             outlineWidth: 3,

@@ -45,15 +45,15 @@ export default function ShaderBackground() {
         float radial = 1.0 - smoothstep(0.0, 1.8, dist);
         radial = pow(radial, 1.5);
 
-        // Color palette — deep black to vivid emerald
-        vec3 black = vec3(0.01, 0.02, 0.05);
-        vec3 emerald = vec3(0.0, 0.25, 0.18);
-        vec3 teal = vec3(0.0, 0.15, 0.22);
-        vec3 bright = vec3(0.05, 0.5, 0.35);
+        // Color palette — warm navy to amber gold
+        vec3 navy = vec3(0.04, 0.06, 0.12);
+        vec3 amber = vec3(0.35, 0.18, 0.02);
+        vec3 warm = vec3(0.25, 0.10, 0.04);
+        vec3 bright = vec3(0.96, 0.62, 0.04);
 
         // Mix colors based on noise layers
-        vec3 color = mix(black, emerald, noise * 0.5 + 0.5);
-        color = mix(color, teal, n2 * 0.5 + 0.3);
+        vec3 color = mix(navy, amber, noise * 0.5 + 0.5);
+        color = mix(color, warm, n2 * 0.5 + 0.3);
         color += bright * pow(max(noise, 0.0), 2.0) * 0.2;
 
         // Apply radial glow — brighter in center

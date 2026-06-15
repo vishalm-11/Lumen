@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from services.news_service import fetch_news
 from services.gemini_service import summarize_news
 from services.elevenlabs_service import speak
 import asyncio
@@ -21,32 +20,18 @@ except Exception:
 async def get_country_data(country_name: str):
     try:
         print(f"Fetching data for country: {country_name}")
-        
-        # Fetch headlines first (fast)
-        headlines = fetch_news(country_name)
-        print(f"Headlines fetched: {len(headlines)} items")
-        print(f"Headlines content: {headlines}")
-        
-        # Filter out the "No recent news" fallback message
-        headlines = [h for h in headlines if h.get("title") and "No recent news available" not in h.get("title", "")]
-
-        print(f"Final headlines being returned: {len(headlines)} items")
-
-        headline_titles = [h["title"] for h in headlines if h.get("title")]
-        if not headline_titles:
-            headline_titles = [f"Recent news about {country_name}"]
-            print(f"WARNING: No valid headlines for summary, using default")
 
         loop = asyncio.get_event_loop()
 
-        summary_future = loop.run_in_executor(executor, summarize_news, country_name, headline_titles, None)
-        summary = await summary_future
-        print(f"Summary generated: {len(summary)} characters")
+        briefing_future = loop.run_in_executor(executor, summarize_news, country_name)
+        briefing = await briefing_future
+        summary = briefing["summary"]
+        key_stats = briefing.get("key_stats", [])
+        print(f"Summary generated: {len(summary)} characters, {len(key_stats)} stats")
 
         audio_base64 = await loop.run_in_executor(executor, speak, summary)
         print(f"Audio generated: {len(audio_base64)} characters")
 
-        # Look up cause data for this country
         cause_entry = _CAUSES.get(country_name)
         cause = {
             "organization": cause_entry["organization"],
@@ -56,8 +41,8 @@ async def get_country_data(country_name: str):
 
         return {
             "country": country_name,
-            "headlines": headlines,
             "summary": summary,
+            "key_stats": key_stats,
             "audio_base64": audio_base64,
             "cause": cause,
         }
@@ -68,4 +53,3 @@ async def get_country_data(country_name: str):
         error_details = traceback.format_exc()
         print(f"Error processing {country_name}: {error_details}")
         raise HTTPException(status_code=500, detail=f"Error processing {country_name}: {str(e)}")
-

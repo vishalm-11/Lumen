@@ -1,195 +1,111 @@
 import { useEffect, useRef, useState } from 'react'
 
-// Article Preview Component
-const ArticlePreview = ({ headline, index }) => {
-  const [showPreview, setShowPreview] = useState(false)
-  const [previewPosition, setPreviewPosition] = useState('right')
-  const articleRef = useRef(null)
-  const headlineText = typeof headline === 'string' ? headline : (headline?.title || headline || '')
-  const headlineUrl = typeof headline === 'object' && headline ? headline.url : null
-  const headlineImage = typeof headline === 'object' && headline ? headline.image : null
-  const headlineDescription = typeof headline === 'object' && headline ? headline.description : null
-
-  const handleMouseEnter = () => {
-    if (headlineDescription && articleRef.current) {
-      const rect = articleRef.current.getBoundingClientRect()
-      const spaceRight = window.innerWidth - rect.right
-      // If there's not enough space on the right (280px + 12px margin), show on left
-      setPreviewPosition(spaceRight < 300 ? 'left' : 'right')
-      setShowPreview(true)
-    }
-  }
-
-  return (
-    <div 
-      ref={articleRef}
-      style={{
-        padding: '14px 16px',
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '10px',
-        display: 'flex',
-        gap: '14px',
-        alignItems: 'flex-start',
-        transition: 'all 0.2s ease',
-        cursor: headlineUrl ? 'pointer' : 'default',
-        position: 'relative',
-      }}
-      onClick={() => {
-        if (headlineUrl) {
-          window.open(headlineUrl, '_blank', 'noopener,noreferrer')
-        }
-      }}
-      onMouseEnter={(e) => {
-        if (headlineUrl) {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.08)'
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
-        }
-        handleMouseEnter()
-      }}
-      onMouseLeave={(e) => {
-        if (headlineUrl) {
-          e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
-        }
-        setShowPreview(false)
-      }}
-    >
-      {/* Thumbnail */}
-      {headlineImage && (
-        <img 
-          src={headlineImage} 
-          alt=""
-          style={{
-            width: '80px',
-            height: '60px',
-            objectFit: 'cover',
-            borderRadius: '6px',
-            flexShrink: 0,
-            border: '1px solid rgba(255,255,255,0.1)',
-          }}
-          onError={(e) => {
-            e.currentTarget.style.display = 'none'
-          }}
-        />
-      )}
-      
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-          <span style={{
-            fontFamily: 'JetBrains Mono',
-            fontSize: '0.6rem',
-            color: '#FFFFFF',
-            flexShrink: 0,
-            marginTop: '2px',
-          }}>
-            {String(index + 1).padStart(2, '0')}
-          </span>
-          <span style={{
-            fontFamily: 'DM Sans',
-            fontSize: '0.82rem',
-            lineHeight: 1.5,
-            color: headlineUrl ? '#FFFFFF' : 'rgba(249,250,251,0.75)',
-            textDecoration: headlineUrl ? 'underline' : 'none',
-            textUnderlineOffset: '2px',
-          }}>
-            {headlineText}
-          </span>
-        </div>
-        {headlineUrl && (
-          <div style={{
-            fontFamily: 'JetBrains Mono',
-            fontSize: '0.55rem',
-            color: '#6B7280',
-            marginLeft: '24px',
-            opacity: 0.7,
-          }}>
-            Click to read →
-          </div>
-        )}
-      </div>
-      
-      {/* Hover Preview */}
-      {showPreview && headlineDescription && (
-        <div style={{
-          position: 'absolute',
-          ...(previewPosition === 'right' 
-            ? { left: '100%', marginLeft: '12px' }
-            : { right: '100%', marginRight: '12px' }
-          ),
-          top: '0',
-          width: '280px',
-          padding: '14px 16px',
-          background: 'rgba(0,0,0,0.95)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.15)',
-          borderRadius: '10px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-          zIndex: 100,
-          pointerEvents: 'none',
-        }}>
-          <div style={{
-            fontFamily: 'DM Sans',
-            fontSize: '0.75rem',
-            lineHeight: 1.6,
-            color: 'rgba(249,250,251,0.9)',
-          }}>
-            {headlineDescription}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-
 export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
   const audioRef = useRef(null)
+  const playTimeoutRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
 
-  useEffect(() => {
-    if (!data?.audio_base64) {
-      console.log('[Audio] No audio_base64 in data:', Object.keys(data || {}))
-      return
+  const stopAudio = () => {
+    if (playTimeoutRef.current) {
+      clearTimeout(playTimeoutRef.current)
+      playTimeoutRef.current = null
     }
-    console.log('[Audio] Playing audio, base64 length:', data.audio_base64.length)
-    const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`)
-    audioRef.current = audio
-    audio.onplay = () => setIsPlaying(true)
-    audio.onended = () => setIsPlaying(false)
-    audio.onpause = () => setIsPlaying(false)
-    audio.onerror = (e) => console.error('[Audio] Playback error:', e)
-    setTimeout(() => {
-      audio.play().catch(e => console.error('[Audio] Play failed:', e))
-    }, 300)
-    return () => {
+
+    const audio = audioRef.current
+    if (audio) {
       audio.pause()
+      audio.currentTime = 0
+      audio.onplay = null
+      audio.onended = null
+      audio.onpause = null
+      audio.onerror = null
+      audio.removeAttribute('src')
+      audio.load()
       audioRef.current = null
     }
-  }, [data])
+
+    setIsPlaying(false)
+  }
+
+  const handleClose = () => {
+    stopAudio()
+    onClose()
+  }
+
+  useEffect(() => {
+    stopAudio()
+
+    if (!data?.audio_base64) {
+      return
+    }
+
+    const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`)
+    audioRef.current = audio
+
+    audio.onplay = () => setIsPlaying(true)
+    audio.onended = () => {
+      setIsPlaying(false)
+      audio.currentTime = 0
+    }
+    audio.onpause = () => setIsPlaying(false)
+    audio.onerror = () => setIsPlaying(false)
+
+    playTimeoutRef.current = setTimeout(() => {
+      playTimeoutRef.current = null
+      if (audioRef.current !== audio) return
+      audio.play().catch(() => setIsPlaying(false))
+    }, 300)
+
+    return () => {
+      if (playTimeoutRef.current) {
+        clearTimeout(playTimeoutRef.current)
+        playTimeoutRef.current = null
+      }
+
+      if (audioRef.current === audio) {
+        audio.pause()
+        audio.currentTime = 0
+        audio.onplay = null
+        audio.onended = null
+        audio.onpause = null
+        audio.onerror = null
+        audio.removeAttribute('src')
+        audio.load()
+        audioRef.current = null
+      }
+
+      setIsPlaying(false)
+    }
+  }, [data?.country, data?.audio_base64])
 
   const toggleAudio = () => {
-    if (!audioRef.current) return
-    if (isPlaying) {
-      audioRef.current.pause()
-    } else {
-      audioRef.current.currentTime = 0
-      audioRef.current.play()
+    const audio = audioRef.current
+    if (!audio) return
+
+    if (!audio.paused) {
+      audio.pause()
+      return
     }
+
+    if (audio.ended) {
+      audio.currentTime = 0
+    }
+
+    audio.play().catch(() => setIsPlaying(false))
   }
 
   return (
     <>
       {/* Backdrop overlay - clickable to close, only over globe area */}
       <div 
-        onClick={onClose}
+        onClick={handleClose}
         style={{
           position: 'fixed',
           top: 0,
           left: 0,
           width: globeWidth,
           bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
+          background: 'rgba(20, 10, 5, 0.5)',
           backdropFilter: 'blur(4px)',
           zIndex: 19,
         }}
@@ -204,7 +120,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
         width: '600px',
         maxWidth: '60vw',
         maxHeight: '85vh',
-        background: 'rgba(0,0,0,0.75)',
+        background: 'rgba(20, 10, 5, 0.85)',
         backdropFilter: 'blur(20px) saturate(180%)',
         border: '1px solid rgba(255,255,255,0.1)',
         borderRadius: '16px',
@@ -226,7 +142,8 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
         }}>
           <div>
             <div style={{
-              fontFamily: 'JetBrains Mono',
+              fontFamily: 'DM Sans',
+            fontWeight: 500,
               fontSize: '0.6rem',
               color: '#FFFFFF',
               letterSpacing: '0.2em',
@@ -245,7 +162,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             style={{
               background: 'rgba(255,255,255,0.08)',
               border: '1px solid rgba(255,255,255,0.15)',
@@ -303,13 +220,14 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
               width: '8px',
               height: '8px',
               borderRadius: '50%',
-              background: isPlaying ? '#10B981' : '#6B7280',
+              background: isPlaying ? '#F59E0B' : '#6B7280',
             }} />
             <span style={{
-              fontFamily: 'JetBrains Mono',
+              fontFamily: 'DM Sans',
+            fontWeight: 500,
               fontSize: '0.6rem',
               letterSpacing: '0.15em',
-              color: isPlaying ? '#10B981' : '#6B7280',
+              color: isPlaying ? '#F59E0B' : '#6B7280',
             }}>
               {isPlaying ? 'ON AIR' : 'PLAY'}
             </span>
@@ -329,7 +247,8 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
           </div>
 
           <span style={{
-            fontFamily: 'JetBrains Mono',
+            fontFamily: 'DM Sans',
+            fontWeight: 500,
             fontSize: '0.65rem',
             color: '#FFFFFF',
             flexShrink: 0,
@@ -358,6 +277,60 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
             </div>
           </div>
 
+          {/* Key Stats */}
+          {data.key_stats?.length > 0 && (
+            <div style={{ padding: '0 28px 24px' }}>
+              <div style={{
+                fontFamily: 'DM Sans',
+                fontWeight: 500,
+                fontSize: '0.65rem',
+                color: 'rgba(255,255,255,0.5)',
+                letterSpacing: '0.25em',
+                marginBottom: '12px',
+              }}>
+                KEY STATS
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+                flexWrap: 'wrap',
+              }}>
+                {data.key_stats.map((stat, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      flex: '1 1 140px',
+                      padding: '14px 16px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '10px',
+                      backdropFilter: 'blur(12px)',
+                    }}
+                  >
+                    <div style={{
+                      fontFamily: 'DM Sans',
+                      fontSize: '1.35rem',
+                      fontWeight: 600,
+                      color: '#F59E0B',
+                      lineHeight: 1.2,
+                      marginBottom: '6px',
+                    }}>
+                      {stat.value}
+                    </div>
+                    <div style={{
+                      fontFamily: 'DM Sans',
+                      fontSize: '0.75rem',
+                      lineHeight: 1.4,
+                      color: 'rgba(249,250,251,0.65)',
+                    }}>
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Donate Button */}
           {data.cause && (
             <div style={{ padding: '0 28px 24px' }}>
@@ -370,65 +343,32 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
                   alignItems: 'center',
                   gap: '8px',
                   padding: '12px 20px',
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: 'rgba(245, 158, 11, 0.15)',
+                  border: '1px solid rgba(245, 158, 11, 0.45)',
                   borderRadius: '10px',
-                  color: '#F9FAFB',
+                  color: '#FCD34D',
                   fontFamily: 'DM Sans',
                   fontSize: '0.88rem',
-                  fontWeight: '500',
+                  fontWeight: '600',
                   textDecoration: 'none',
                   transition: 'all 0.2s ease',
                   cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.12)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.35)'
+                  e.currentTarget.style.background = 'rgba(245, 158, 11, 0.28)'
+                  e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.65)'
+                  e.currentTarget.style.color = '#FDE68A'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+                  e.currentTarget.style.background = 'rgba(245, 158, 11, 0.15)'
+                  e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.45)'
+                  e.currentTarget.style.color = '#FCD34D'
                 }}
               >
                 Donate to {data.cause.organization} →
               </a>
             </div>
           )}
-
-          {/* Headlines */}
-          <div style={{
-            padding: '0 28px 28px',
-          }}>
-            <div style={{
-              fontFamily: 'JetBrains Mono',
-              fontSize: '0.65rem',
-              color: 'rgba(255,255,255,0.5)',
-              letterSpacing: '0.25em',
-              marginBottom: '16px',
-              fontWeight: '500',
-            }}>
-              RELATED COVERAGE
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {data.headlines && data.headlines.length > 0 ? (
-                data.headlines.map((headline, i) => (
-                  <ArticlePreview key={i} headline={headline} index={i} />
-                ))
-              ) : (
-                <div style={{
-                  padding: '14px 16px',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '10px',
-                  fontFamily: 'DM Sans',
-                  fontSize: '0.82rem',
-                  color: 'rgba(249,250,251,0.75)',
-                }}>
-                  No headlines available at this time.
-                </div>
-              )}
-            </div>
-          </div>
 
         </div>
       </div>

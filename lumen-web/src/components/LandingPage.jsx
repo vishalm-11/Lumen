@@ -9,7 +9,7 @@ export default function LandingPage({ onEnter }) {
     <div style={{
       width: '100vw',
       height: '100vh',
-      background: 'linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%)',
+      background: 'linear-gradient(135deg, #0a0f1e 0%, #12101a 50%, #0a0f1e 100%)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -53,13 +53,14 @@ export default function LandingPage({ onEnter }) {
         
         {/* Subtitle */}
         <div style={{
-          fontFamily: 'JetBrains Mono',
+          fontFamily: 'DM Sans',
+          fontWeight: 500,
           fontSize: '0.9rem',
           color: '#6B7280',
           letterSpacing: '0.3em',
-          marginBottom: '40px',
+          marginBottom: '16px',
         }}>
-          GLOBAL NEWS INTELLIGENCE
+          SEE IT. UNDERSTAND IT. ACT.
         </div>
         
         {/* Description */}
@@ -68,22 +69,18 @@ export default function LandingPage({ onEnter }) {
           fontSize: '1.1rem',
           lineHeight: 1.8,
           color: 'rgba(249,250,251,0.8)',
-          marginBottom: '40px',
           maxWidth: '600px',
-          margin: '0 auto 40px',
+          margin: '0 auto 16px',
         }}>
-          <p style={{ marginBottom: '20px' }}>
-            Real-time global news intelligence for stock market analysis. 
-            World events move markets, and Lumen makes that connection visible. 
-            Click any country to see how news is driving financial markets with 
-            AI-powered analysis and live market data.
+          <p style={{ margin: '0 0 16px' }}>
+            Every country has a story. Explore the crises shaping our world, understand what's happening on the ground, and support the causes that matter.
           </p>
-          <p style={{ 
+          <p style={{
+            margin: 0,
             fontSize: '0.95rem',
             color: 'rgba(249,250,251,0.6)',
-            fontStyle: 'italic',
           }}>
-            Connecting global events to market movements in real time.
+            Click any country to get started.
           </p>
         </div>
         
@@ -93,21 +90,21 @@ export default function LandingPage({ onEnter }) {
             onClick={onEnter}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            shimmerColor="#059669"
+            shimmerColor="#F59E0B"
             shimmerDuration="3.2s"
             shimmerSize="0.06em"
-            background="rgba(3,7,18,0.95)"
+            background="rgba(20, 10, 5, 0.95)"
             borderRadius="999px"
           >
             <span
               style={{
-                fontFamily: 'JetBrains Mono',
+                fontFamily: 'DM Sans',
                 fontSize: '0.9rem',
                 letterSpacing: '0.2em',
                 fontWeight: 600,
               }}
             >
-              ENTER GLOBE →
+              Explore →
             </span>
           </ShimmerButton>
         </div>

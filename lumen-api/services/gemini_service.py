@@ -18,29 +18,77 @@ try:
 except Exception:
     _CAUSES = {}
 
-def summarize_news(country: str, headlines: list, economics: dict = None) -> str:
-    if headlines and isinstance(headlines[0], dict):
-        headline_titles = [h.get("title", "") for h in headlines if h.get("title")]
-    else:
-        headline_titles = [h for h in headlines if isinstance(h, str)]
+def _parse_briefing_response(raw_text: str, country: str) -> dict:
+    text = raw_text.strip().replace("```json", "").replace("```", "").strip()
 
+    try:
+        result = json.loads(text)
+    except json.JSONDecodeError:
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        if not match:
+            return {
+                "summary": text or f"{country} faces ongoing humanitarian and environmental challenges that continue to affect communities across the region.",
+                "key_stats": [],
+            }
+        try:
+            result = json.loads(match.group())
+        except json.JSONDecodeError:
+            return {
+                "summary": text or f"{country} faces ongoing humanitarian and environmental challenges that continue to affect communities across the region.",
+                "key_stats": [],
+            }
+
+    summary = (result.get("summary") or "").strip()
+    if not summary:
+        summary = f"{country} faces ongoing humanitarian and environmental challenges that continue to affect communities across the region."
+
+    key_stats = []
+    for stat in result.get("key_stats", [])[:3]:
+        if not isinstance(stat, dict):
+            continue
+        value = str(stat.get("value", "")).strip()
+        label = str(stat.get("label", "")).strip()
+        if value and label:
+            key_stats.append({"value": value, "label": label})
+
+    return {"summary": summary, "key_stats": key_stats}
+
+
+def summarize_news(country: str, headlines: list = None, economics: dict = None) -> dict:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY not set in environment variables")
 
-    headlines_text = "\n".join(f"- {h}" for h in headline_titles)
-
     cause = _CAUSES.get(country)
-    cause_context = ""
     if cause:
-        cause_context = f" Note that {cause['organization']} is one of the organizations actively working to help — mention them by name."
+        topic_context = f"""The topic for this briefing is already defined — use it as your starting point and focus entirely on it:
+- Country: {country}
+- Issue: {cause['issue']}
+- Supporting organization: {cause['organization']}
 
-    prompt = f"""You are a compassionate humanitarian narrator. In 3-4 sentences, identify the most pressing ongoing humanitarian or environmental crisis affecting people in {country} right now. Explain why it matters and what real people are living through. Speak with warmth and genuine concern — not as a news anchor, but as someone who deeply cares.{cause_context} No bullet points, no markdown, plain spoken text only.
+Write the briefing and statistics specifically about "{cause['issue']}" in {country}. In the final sentence, naturally mention that {cause['organization']} is working to address this issue."""
+    else:
+        topic_context = f"""{country} is not in our causes database. Using your general knowledge only, identify the single most well-known ongoing humanitarian or environmental crisis affecting {country} (not a fleeting news story). Write the briefing and statistics entirely about that issue."""
 
-Recent news context:
-{headlines_text}"""
+    prompt = f"""You are writing a factual humanitarian briefing about {country}.
 
-    # Try different API versions and model names
+{topic_context}
+
+Important rules:
+- Do NOT use current news, headlines, or recent events. Ignore breaking stories entirely.
+- Use only well-established background knowledge about the issue.
+- The summary must be at most 3 sentences: clear, informative, and factual — not emotional or sympathetic.
+- Focus on: what the issue is, who it affects, and the scale of the problem.
+- key_stats must contain 2-3 real, well-known statistics about this specific issue (e.g. deforestation rates, people displaced, hectares lost). Draw from widely cited figures in your training knowledge — not from news. Use rounded values with "est." when appropriate.
+
+Return a JSON object with exactly these fields:
+- summary: plain-text string (max 3 sentences)
+- key_stats: array of 2-3 objects, each with:
+  - value: short statistic (e.g. "2.3M", "40%", "10,000 km²")
+  - label: brief label (e.g. "displaced", "forest lost since 2020")
+
+Respond with ONLY the JSON object. No markdown, no explanation."""
+
     models_to_try = [
         ("v1", "gemini-2.5-flash"),
         ("v1", "gemini-2.0-flash"),
@@ -73,13 +121,10 @@ Recent news context:
                 raise ValueError("Invalid response from Gemini API")
             
             text = response.text.strip()
-            text = text.replace("```", "").strip()
-            
-            if not text:
-                text = f"Recent developments in {country} continue to unfold as global observers monitor the situation closely."
+            briefing = _parse_briefing_response(text, country)
             
             print(f"Successfully used model: {model_name}")
-            return text
+            return briefing
             
         except Exception as e:
             last_error = e

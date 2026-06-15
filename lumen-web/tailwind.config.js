@@ -5,12 +5,12 @@ export default {
       fontFamily: {
         display: ['"Bebas Neue"', 'cursive'],
         body: ['"DM Sans"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        label: ['"DM Sans"', 'sans-serif'],
       },
       colors: {
         lumen: {
-          bg: '#030712',
-          panel: '#0a0f1a',
+          bg: '#0a0f1e',
+          panel: 'rgba(20, 10, 5, 0.85)',
           accent: '#F59E0B',
           danger: '#EF4444',
           text: '#F9FAFB',
