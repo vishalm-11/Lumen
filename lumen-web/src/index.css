@@ -131,22 +131,22 @@ body {
 
 .briefing-video-wrapper {
   flex-shrink: 0;
-  perspective: 1400px;
+  perspective: 2200px;
   pointer-events: auto;
   position: relative;
   z-index: 1;
 }
 
 .briefing-video {
-  width: 420px;
-  max-width: 36vw;
+  width: 546px;
+  max-width: 47vw;
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 16 / 9;
   background: rgba(20, 10, 5, 0.92);
   border: 1px solid rgba(245, 158, 11, 0.45);
   opacity: 0;
-  transform: perspective(1400px) rotateY(-10deg) scale(0.96) translateZ(0);
+  transform: perspective(2200px) rotateY(-5deg) scale(0.98) translateZ(0);
   transform-origin: left center;
   box-shadow:
     0 32px 64px rgba(0, 0, 0, 0.65),
@@ -161,7 +161,7 @@ body {
 
 .briefing-video-visible {
   opacity: 1;
-  transform: perspective(1400px) rotateY(-7deg) scale(1) translateZ(24px);
+  transform: perspective(2200px) rotateY(-3.5deg) scale(1) translateZ(12px);
   box-shadow:
     0 40px 80px rgba(0, 0, 0, 0.7),
     0 0 100px rgba(245, 158, 11, 0.35),
@@ -175,6 +175,13 @@ body {
   width: 100%;
   height: 100%;
   border: none;
+}
+
+.briefing-video-inner > div {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .briefing-video-inner {

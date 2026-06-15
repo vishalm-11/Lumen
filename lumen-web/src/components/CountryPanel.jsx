@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { getYoutubeVideo } from '../lib/api'
 import HolographicProjection from './HolographicProjection'
+import YoutubePlayer from './YoutubePlayer'
 import { AUDIO_ENABLED } from '../config'
 
 export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
@@ -9,6 +10,10 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
   const layoutRef = useRef(null)
   const panelRef = useRef(null)
   const videoRef = useRef(null)
+  const ytPlayerRef = useRef(null)
+  const pendingYoutubeUnmuteRef = useRef(false)
+  const fallbackRef = useRef(data.fallback)
+  fallbackRef.current = data.fallback
   const [isPlaying, setIsPlaying] = useState(false)
   const [videoId, setVideoId] = useState(null)
   const [videoVisible, setVideoVisible] = useState(false)
@@ -16,6 +21,38 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
   const handleLinesComplete = useCallback(() => {
     setVideoVisible(true)
   }, [])
+
+  const hasNarration = AUDIO_ENABLED && data.audio && !data.fallback
+
+  const unmuteYoutube = useCallback(() => {
+    const player = ytPlayerRef.current
+    if (!player?.unMute) return
+
+    try {
+      player.unMute()
+      if (player.getPlayerState?.() !== 1 && player.playVideo) {
+        player.playVideo()
+      }
+    } catch (error) {
+      console.warn('[YouTube] unmute failed:', error)
+    }
+  }, [])
+
+  const requestYoutubeUnmute = useCallback(() => {
+    pendingYoutubeUnmuteRef.current = true
+    if (ytPlayerRef.current?.unMute) {
+      unmuteYoutube()
+      pendingYoutubeUnmuteRef.current = false
+    }
+  }, [unmuteYoutube])
+
+  const handleYoutubeReady = useCallback((player) => {
+    ytPlayerRef.current = player
+    if (pendingYoutubeUnmuteRef.current || fallbackRef.current) {
+      unmuteYoutube()
+      pendingYoutubeUnmuteRef.current = false
+    }
+  }, [unmuteYoutube])
 
   const stopAudio = () => {
     if (playTimeoutRef.current) {
@@ -41,25 +78,32 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
 
   const handleClose = () => {
     stopAudio()
+    ytPlayerRef.current = null
+    pendingYoutubeUnmuteRef.current = false
     onClose()
   }
 
   useEffect(() => {
-    if (!AUDIO_ENABLED) return
+    if (!data.fallback || !videoId) return
+    requestYoutubeUnmute()
+  }, [data.fallback, videoId, requestYoutubeUnmute])
 
-    stopAudio()
-
-    if (!data?.audio_base64) {
+  useEffect(() => {
+    if (!hasNarration) {
+      stopAudio()
       return
     }
 
-    const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`)
+    stopAudio()
+
+    const audio = new Audio(`data:audio/mpeg;base64,${data.audio}`)
     audioRef.current = audio
 
     audio.onplay = () => setIsPlaying(true)
     audio.onended = () => {
       setIsPlaying(false)
       audio.currentTime = 0
+      requestYoutubeUnmute()
     }
     audio.onpause = () => setIsPlaying(false)
     audio.onerror = () => setIsPlaying(false)
@@ -90,12 +134,14 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
 
       setIsPlaying(false)
     }
-  }, [data?.country, data?.audio_base64])
+  }, [data?.country, data?.audio, data?.fallback, hasNarration, requestYoutubeUnmute])
 
   useEffect(() => {
     let cancelled = false
     setVideoId(null)
     setVideoVisible(false)
+    ytPlayerRef.current = null
+    pendingYoutubeUnmuteRef.current = false
 
     getYoutubeVideo(data.country, data.cause?.issue)
       .then((res) => {
@@ -222,7 +268,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
         </div>
 
         {/* Audio Player */}
-        {AUDIO_ENABLED && (
+        {hasNarration && (
         <div style={{
           margin: '16px 28px',
           padding: '14px 18px',
@@ -413,12 +459,7 @@ export default function CountryPanel({ data, onClose, globeWidth = '75%' }) {
             >
               <div className="briefing-video-glow" />
               <div className="briefing-video-inner">
-                <iframe
-                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&rel=0`}
-                  title={`${data.country} briefing video`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
+                <YoutubePlayer videoId={videoId} onReady={handleYoutubeReady} />
               </div>
             </div>
           </div>

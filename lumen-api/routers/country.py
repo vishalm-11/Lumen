@@ -22,11 +22,19 @@ async def get_country_data(country_name: str):
         key_stats = briefing.get("key_stats", [])
         print(f"Summary generated: {len(summary)} characters, {len(key_stats)} stats")
 
+        audio = None
+        fallback = False
         if AUDIO_ENABLED:
-            audio_base64 = await loop.run_in_executor(executor, speak, summary)
-            print(f"Audio generated: {len(audio_base64)} characters")
+            audio_result = await loop.run_in_executor(executor, speak, summary)
+            audio = audio_result["audio"]
+            fallback = audio_result["fallback"]
+            if audio:
+                print(f"Audio generated: {len(audio)} characters")
+            elif fallback:
+                print("Audio fallback: all ElevenLabs keys failed, continuing without narration")
+            else:
+                print("Audio generation skipped")
         else:
-            audio_base64 = None
             print("Audio generation skipped (AUDIO_ENABLED=False)")
 
         cause_entry = lookup_cause(country_name)
@@ -40,7 +48,9 @@ async def get_country_data(country_name: str):
             "country": country_name,
             "summary": summary,
             "key_stats": key_stats,
-            "audio_base64": audio_base64,
+            "audio": audio,
+            "audio_base64": audio,
+            "fallback": fallback,
             "cause": cause,
         }
     except HTTPException:

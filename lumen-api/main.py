@@ -28,7 +28,9 @@ def check_keys():
     """Debug endpoint to check if API keys are set (without exposing values)"""
     return {
         "GEMINI_API_KEY": "set" if os.getenv("GEMINI_API_KEY") else "missing",
-        "ELEVENLABS_API_KEY": "set" if os.getenv("ELEVENLABS_API_KEY") else "missing",
+        "ELEVENLABS_API_KEY_1": "set" if os.getenv("ELEVENLABS_API_KEY_1") else "missing",
+        "ELEVENLABS_API_KEY_2": "set" if os.getenv("ELEVENLABS_API_KEY_2") else "missing",
+        "ELEVENLABS_API_KEY_3": "set" if os.getenv("ELEVENLABS_API_KEY_3") else "missing",
         "NEWS_API_KEY": "set" if os.getenv("NEWS_API_KEY") else "missing",
         "YOUTUBE_API_KEY": "set" if os.getenv("YOUTUBE_API_KEY") else "missing",
     }
