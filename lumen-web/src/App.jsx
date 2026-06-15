@@ -70,8 +70,13 @@ export default function App() {
             See It. Understand It. Act.
           </div>
         </div>
-        <div style={{ fontFamily: 'DM Sans', fontSize: '0.65rem', fontWeight: 500, color: '#6B7280', letterSpacing: '0.15em' }}>
-          CLICK ANY COUNTRY
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontFamily: 'DM Sans', fontSize: '0.65rem', fontWeight: 500, color: '#6B7280', letterSpacing: '0.15em' }}>
+            CLICK ANY COUNTRY
+          </div>
+          <div style={{ fontFamily: 'DM Sans', fontSize: '0.6rem', fontWeight: 500, color: '#6B7280', letterSpacing: '0.12em', marginTop: '5px' }}>
+            Zoom to Find More Countries
+          </div>
         </div>
       </div>
 
